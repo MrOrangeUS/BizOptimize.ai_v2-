@@ -20,7 +20,11 @@ export default function Play({ id }) {
   const router = useRouter();
 
   useEffect(() => {
-    fetch(`/api/openai/generate?surveyId=${id}`)
+    fetch(`/api/openai/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ surveyId: id }),
+    })
       .then((res) => res.json())
       .then((data) => {
         setQuestion(data.question);

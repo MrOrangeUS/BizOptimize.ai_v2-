@@ -30,4 +30,8 @@ export async function POST(req) {
     console.error('/api/openai/generate error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
 } 
