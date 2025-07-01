@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       data: { text: qText, order: updated.answers.length + 1 },
     });
     await prisma.suggestion.create({ data: { surveyId, text: suggestion } });
-    const done = updated.answers.length + 1 >= 5;
+    const done = updated.answers.length + 1 >= 12;
     res.json({ question, suggestion, done });
   } else {
     res.status(405).end();
