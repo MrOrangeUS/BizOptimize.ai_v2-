@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
       from: process.env.EMAIL_FROM,
     }),
   ],
-  session: { strategy: "jwt" },
+  session: { strategy: "database" },
   secret: process.env.NEXTAUTH_SECRET,
   pages: { signIn: "/login" },
 }; 
