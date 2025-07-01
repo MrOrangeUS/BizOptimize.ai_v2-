@@ -24,4 +24,21 @@ export async function POST(req, { params }) {
     console.error('/api/surveys/[id]/intro error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
+}
+
+export async function GET(req, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const surveyId = params.id;
+    const survey = await prisma.survey.findUnique({ where: { id: surveyId } });
+    if (!survey || survey.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+    return NextResponse.json({ name: survey.name, description: survey.description });
+  } catch (error) {
+    console.error('/api/surveys/[id]/intro GET error:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
 } 
