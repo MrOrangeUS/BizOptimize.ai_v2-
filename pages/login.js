@@ -37,7 +37,10 @@ export default function Login() {
   const [providers, setProviders] = useState(null);
 
   useEffect(() => {
-    getProviders().then(setProviders);
+    getProviders().then((prov) => {
+      console.log('Providers:', prov);
+      setProviders(prov);
+    });
   }, []);
 
   return (
