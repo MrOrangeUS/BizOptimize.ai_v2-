@@ -5,19 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 
 export default function Dashboard() {
-  // Safe session handling with fallbacks
-  let session = null;
-  let status = "loading";
-  
-  try {
-    const sessionResult = useSession();
-    session = sessionResult.data;
-    status = sessionResult.status;
-  } catch (error) {
-    console.warn('useSession not available:', error);
-    status = "unauthenticated";
-  }
-  
+  const { data: session, status } = useSession();
   const [surveys, setSurveys] = useState([]);
   
   useEffect(() => {

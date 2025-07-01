@@ -5,17 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  // Safe session handling with fallbacks
-  let status = "loading";
-  
-  try {
-    const sessionResult = useSession();
-    status = sessionResult.status;
-  } catch (error) {
-    console.warn('useSession not available:', error);
-    status = "unauthenticated";
-  }
-  
+  const { status } = useSession();
   const router = useRouter();
   
   useEffect(() => {
