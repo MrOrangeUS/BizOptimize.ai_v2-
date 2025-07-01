@@ -1,9 +1,18 @@
 import NextAuth from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
-import GoogleProvider from 'next-auth/providers/google';
-import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../lib/prisma';
+
+const missing = [];
+if (!process.env.GITHUB_ID) missing.push('GITHUB_ID');
+if (!process.env.GITHUB_SECRET) missing.push('GITHUB_SECRET');
+if (!process.env.NEXTAUTH_SECRET) missing.push('NEXTAUTH_SECRET');
+if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
+
+if (missing.length > 0) {
+  // eslint-disable-next-line no-console
+  console.error('Missing required environment variables for NextAuth:', missing.join(', '));
+}
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -12,23 +21,13 @@ export default NextAuth({
       clientId: process.env.GITHUB_ID || '',
       clientSecret: process.env.GITHUB_SECRET || '',
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
-    EmailProvider({
-      server: process.env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM,
-    }),
-    // Phone login is not natively supported by NextAuth.
-    // To add phone login, use a custom provider or integrate with Firebase/Auth0.
-    // See: https://next-auth.js.org/providers/overview#creating-a-custom-provider
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  // Optionally, add debug: true for more logging
+  // debug: true,
 });
 
-// Required ENV VARS:
+// Required ENV VARS (set in Vercel or .env.local):
 // GITHUB_ID, GITHUB_SECRET
-// GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-// EMAIL_SERVER, EMAIL_FROM
 // NEXTAUTH_SECRET
+// DATABASE_URL
