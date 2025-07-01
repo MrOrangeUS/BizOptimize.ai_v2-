@@ -1,16 +1,13 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../../../lib/authOptions';
-import prisma from '../../../../lib/prisma';
 
 export default function IntroPage({ params }) {
   const [form, setForm] = useState({ name: '', description: '' });
   const router = useRouter();
 
   // Fetch survey data on mount (client-side fetch)
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchSurvey() {
       const res = await fetch(`/api/surveys/${params.id}/intro`);
       if (res.ok) {
