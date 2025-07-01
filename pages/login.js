@@ -37,10 +37,14 @@ export default function Login() {
   const [providers, setProviders] = useState(null);
 
   useEffect(() => {
-    getProviders().then((prov) => {
-      console.log('Providers:', prov);
-      setProviders(prov);
-    });
+    getProviders()
+      .then((prov) => {
+        console.log('Providers:', prov);
+        setProviders(prov);
+      })
+      .catch((err) => {
+        console.error('Provider fetch error:', err);
+      });
   }, []);
 
   return (
