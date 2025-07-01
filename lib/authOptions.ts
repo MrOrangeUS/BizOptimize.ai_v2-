@@ -27,9 +27,10 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   pages: { signIn: "/login" },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user && user) {
-        session.user.id = user.id;
+    async session({ session, token }) {
+      if (session.user && token?.sub) {
+        // @ts-expect-error: add id to session user
+        session.user.id = token.sub;
       }
       return session;
     },
