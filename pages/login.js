@@ -84,6 +84,29 @@ export default function Login() {
               </button>
             )
           ))}
+          {/* Fallback HTML buttons if providers are missing */}
+          {!providers && (
+            <>
+              <button
+                className="w-full px-6 py-3 bg-alien-green border-alien-green text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-cyan hover:text-alien-black transition-all duration-200 flex items-center justify-center text-lg tracking-wide border-2 focus:outline-none focus:ring-2 focus:ring-alien-green"
+                onClick={() => signIn('github')}
+              >
+                {providerIcons.github}Continue with GitHub
+              </button>
+              <button
+                className="w-full px-6 py-3 bg-white border-gray-300 text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-green hover:text-alien-black transition-all duration-200 flex items-center justify-center text-lg tracking-wide border-2 focus:outline-none focus:ring-2 focus:ring-alien-green"
+                onClick={() => signIn('google')}
+              >
+                {providerIcons.google}Continue with Google
+              </button>
+              <button
+                className="w-full px-6 py-3 bg-alien-cyan border-alien-cyan text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-green hover:text-alien-black transition-all duration-200 flex items-center justify-center text-lg tracking-wide border-2 focus:outline-none focus:ring-2 focus:ring-alien-green"
+                onClick={() => signIn('email')}
+              >
+                {providerIcons.email}Continue with Email
+              </button>
+            </>
+          )}
         </div>
         {/* Trust Indicators */}
         <div className="mt-8 text-center">
