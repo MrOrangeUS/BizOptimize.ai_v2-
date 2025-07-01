@@ -32,7 +32,18 @@ const providerIcons = {
 
 export default function Login() {
   const [providers, setProviders] = useState(null);
-  const { status } = useSession();
+  
+  // Safe session handling with fallbacks
+  let status = "loading";
+  
+  try {
+    const sessionResult = useSession();
+    status = sessionResult.status;
+  } catch (error) {
+    console.warn('useSession not available:', error);
+    status = "unauthenticated";
+  }
+  
   const router = useRouter();
 
   useEffect(() => {
