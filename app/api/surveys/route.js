@@ -4,21 +4,39 @@ import { authOptions } from '../../../lib/authOptions';
 import prisma from '../../../lib/prisma';
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const survey = await prisma.survey.create({
-    data: { userId: session.user.id },
-  });
-  return NextResponse.json(survey);
+    // Look up user by email
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+    const survey = await prisma.survey.create({
+      data: { userId: user.id },
+    });
+    return NextResponse.json(survey);
+  } catch (error) {
+    console.error('POST /api/surveys error:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
 }
 
 export async function GET(req) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const surveys = await prisma.survey.findMany({
-    where: { userId: session.user.id },
-  });
-  return NextResponse.json(surveys);
+    // Look up user by email
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+    const surveys = await prisma.survey.findMany({
+      where: { userId: user.id },
+    });
+    return NextResponse.json(surveys);
+  } catch (error) {
+    console.error('GET /api/surveys error:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
 } 
