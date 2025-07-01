@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id            String   @id @map("_id") @default(auto())
+  id            String   @id @map("_id") @default(auto()) @db.ObjectId
   name          String?
   email         String?  @unique
   emailVerified DateTime?
@@ -19,7 +19,7 @@ model User {
 }
 
 model Account {
-  id                 String   @id @map("_id") @default(auto())
+  id                 String   @id @map("_id") @default(auto()) @db.ObjectId
   userId             String
   type               String
   provider           String
@@ -37,7 +37,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @map("_id") @default(auto())
+  id           String   @id @map("_id") @default(auto()) @db.ObjectId
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -45,7 +45,7 @@ model Session {
 }
 
 model VerificationToken {
-  id         String   @id @map("_id") @default(auto())
+  id         String   @id @map("_id") @default(auto()) @db.ObjectId
   identifier String
   token      String   @unique
   expires    DateTime
@@ -54,7 +54,7 @@ model VerificationToken {
 }
 
 model Survey {
-  id          String      @id @map("_id") @default(auto())
+  id          String      @id @map("_id") @default(auto()) @db.ObjectId
   user        User        @relation(fields: [userId], references: [id])
   userId      String
   name        String?
@@ -67,14 +67,14 @@ model Survey {
 }
 
 model Question {
-  id      String   @id @map("_id") @default(auto())
+  id      String   @id @map("_id") @default(auto()) @db.ObjectId
   text    String
   order   Int
   answers Answer[]
 }
 
 model Answer {
-  id         String    @id @map("_id") @default(auto())
+  id         String    @id @map("_id") @default(auto()) @db.ObjectId
   survey     Survey    @relation(fields: [surveyId], references: [id])
   surveyId   String
   question   Question? @relation(fields: [questionId], references: [id])
@@ -84,7 +84,7 @@ model Answer {
 }
 
 model Suggestion {
-  id        String   @id @map("_id") @default(auto())
+  id        String   @id @map("_id") @default(auto()) @db.ObjectId
   survey    Survey  @relation(fields: [surveyId], references: [id])
   surveyId  String
   text      String
@@ -92,7 +92,7 @@ model Suggestion {
 }
 
 model Roadmap {
-  id        String   @id @map("_id") @default(auto())
+  id        String   @id @map("_id") @default(auto()) @db.ObjectId
   survey    Survey  @relation(fields: [surveyId], references: [id])
   surveyId  String  @unique
   content   String
