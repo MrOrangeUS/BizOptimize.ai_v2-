@@ -8,7 +8,7 @@ export async function getServerSideProps({ params, req }) {
   if (!session) {
     return { redirect: { destination: '/login', permanent: false } };
   }
-  const survey = await prisma.survey.findUnique({ where: { id: Number(params.id) } });
+  const survey = await prisma.survey.findUnique({ where: { id: params.id } });
   if (!survey || survey.userId !== session.user.id) {
     return { notFound: true };
   }
