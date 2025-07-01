@@ -1,5 +1,6 @@
-import { getSession, signIn, getProviders } from 'next-auth/react';
+import { getSession, signIn, getProviders, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
@@ -35,6 +36,14 @@ const providerIcons = {
 
 export default function Login() {
   const [providers, setProviders] = useState(null);
+  const { status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard");
+    }
+  }, [status, router]);
 
   useEffect(() => {
     getProviders()
