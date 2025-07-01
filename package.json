@@ -20,7 +20,6 @@
     "prisma": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-speech-kit": "^2.0.5",
     "react-speech-recognition": "^3.10.0",
     "tailwindcss": "latest"
   }
