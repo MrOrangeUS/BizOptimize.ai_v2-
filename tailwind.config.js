@@ -10,7 +10,7 @@ module.exports = {
     extend: {
       colors: {
         // Alien Tech Color Palette
-        'alien-black': '#0a0a0a',
+        'alien-black': '#0a0a23', // deep sci-fi black
         'alien-dark': '#1a1a1a',
         'alien-gray': '#2a2a2a',
         'alien-green': '#00ff41',
