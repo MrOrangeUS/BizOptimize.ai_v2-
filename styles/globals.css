@@ -3,6 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force Vercel CSS rebuild: 2024-07-01 */
+
 /* Base Alien Tech Theme */
 @layer base {
   html {
