@@ -14,7 +14,8 @@ export async function POST(req) {
       where: { id: surveyId },
       include: { answers: true },
     });
-    if (!survey || survey.userId !== session.user.id) {
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!survey || !user || survey.userId !== user.id) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 

@@ -25,8 +25,13 @@ export default function Play() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setQuestion(data.question);
-        setSuggestion(data.suggestion);
+        if (data.error) {
+          setQuestion({ text: 'An error occurred: ' + data.error });
+          setSuggestion(null);
+        } else {
+          setQuestion(data.question);
+          setSuggestion(data.suggestion);
+        }
         setLoading(false);
       });
   }, [id, questionNumber]);
