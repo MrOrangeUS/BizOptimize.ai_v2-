@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAvatar } from '../lib/d-id';
+import DIDAvatarManager, { useAvatar } from '../lib/d-id.js';
 
 export default function AvatarPlayer({ 
   text, 
