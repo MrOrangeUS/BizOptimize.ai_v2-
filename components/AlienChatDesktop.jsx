@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAvatar } from '../lib/d-id';
-import { DID_CONFIG, getAvatarConfig } from '../lib/d-id-config';
+import { getAvatarConfig } from '../lib/d-id-config';
 
 export default function AlienChatDesktop() {
-  const [selectedAvatar, setSelectedAvatar] = useState('amy');
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -16,15 +15,14 @@ export default function AlienChatDesktop() {
     isGenerating,
     currentVideo,
     error,
+    clearVideo,
     availableAvatars,
     updateStoredImageIds
   } = useAvatar();
 
-  // Initialize with your actual stored image IDs
-  useEffect(() => {
-    // Update with your actual D-ID stored image IDs
-    updateStoredImageIds(DID_CONFIG.STORED_IMAGE_IDS);
-  }, [updateStoredImageIds]);
+  // Always use the 'alien' avatar
+  const avatarKey = 'alien';
+  const avatarConfig = getAvatarConfig(avatarKey);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -54,21 +52,18 @@ export default function AlienChatDesktop() {
     setIsTyping(true);
 
     try {
-      // Get avatar configuration
-      const avatarConfig = getAvatarConfig(selectedAvatar);
-      
       // Generate avatar response with custom audio
       await generateAvatarWithAudio(
-        `Thank you for your message: "${inputText}". I'm ${avatarConfig.name}, your ${avatarConfig.description.toLowerCase()}. How can I assist you with your business optimization needs today?`,
-        selectedAvatar,
+        `Thank you for your message: "${inputText}". I am your Alien Tech AI Avatar. How can I assist you with your business optimization needs today?`,
+        avatarKey,
         avatarConfig.voiceId
       );
 
       const aiMessage = {
         id: Date.now() + 1,
-        text: `I'm ${avatarConfig.name}, your ${avatarConfig.description.toLowerCase()}. How can I assist you with your business optimization needs today?`,
+        text: `I am your Alien Tech AI Avatar. How can I assist you with your business optimization needs today?`,
         sender: 'ai',
-        avatar: selectedAvatar,
+        avatar: avatarKey,
         timestamp: new Date()
       };
 
@@ -79,7 +74,7 @@ export default function AlienChatDesktop() {
         id: Date.now() + 1,
         text: 'I apologize, but I encountered an issue processing your request. Please try again.',
         sender: 'ai',
-        avatar: selectedAvatar,
+        avatar: avatarKey,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -95,35 +90,13 @@ export default function AlienChatDesktop() {
     }
   };
 
-  const getCurrentAvatarConfig = () => {
-    return getAvatarConfig(selectedAvatar);
-  };
-
   return (
     <div className="min-h-screen bg-alien-black flex items-center justify-center font-orbitron px-2 py-8">
       <div className="w-full max-w-6xl h-[700px] bg-alien-black rounded-2xl shadow-neon flex flex-col md:flex-row border-2 border-alien-green relative overflow-hidden"
            style={{ boxShadow: '0 0 32px #00ff41' }}>
-        
         {/* Avatar Panel */}
         <div className="md:w-2/5 w-full flex flex-col items-center justify-center p-6 border-b-2 md:border-b-0 md:border-r-2 border-alien-green relative"
              style={{ minHeight: 300 }}>
-          
-          {/* Avatar Selection */}
-          <div className="mb-4 w-full">
-            <label className="text-alien-green text-sm mb-2 block">Select Avatar:</label>
-            <select
-              value={selectedAvatar}
-              onChange={(e) => setSelectedAvatar(e.target.value)}
-              className="w-full bg-alien-dark border border-alien-green text-alien-green px-3 py-2 rounded-lg font-orbitron text-sm"
-            >
-              {availableAvatars.map(avatar => (
-                <option key={avatar.key} value={avatar.key}>
-                  {avatar.name} - {avatar.description}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Avatar Display */}
           <div className="relative w-48 h-64 flex items-center justify-center">
             {/* Video Player */}
@@ -136,15 +109,13 @@ export default function AlienChatDesktop() {
               muted
               loop
             />
-            
             {/* Static Image (fallback) */}
             <img
               src="/avatar.png"
-              alt={getCurrentAvatarConfig().name}
+              alt={avatarConfig.name}
               className="w-40 h-52 rounded-lg object-cover border-2 border-alien-green shadow-neon"
               style={{ display: currentVideo ? 'none' : 'block' }}
             />
-            
             {/* Loading Indicator */}
             {isGenerating && (
               <div className="absolute inset-0 flex items-center justify-center bg-alien-black bg-opacity-75 rounded-lg">
@@ -153,23 +124,20 @@ export default function AlienChatDesktop() {
                 </div>
               </div>
             )}
-
             {/* Neon Circuit Frame */}
             <div className="absolute inset-0 pointer-events-none rounded-lg border-2 border-alien-green"
                  style={{ boxShadow: '0 0 24px #00ff41', borderColor: '#00ff41' }} />
           </div>
-
           {/* Avatar Info */}
           <div className="mt-4 text-center">
             <h3 className="text-alien-green font-bold text-lg">
-              {getCurrentAvatarConfig().name}
+              {avatarConfig.name}
             </h3>
             <p className="text-alien-cyan text-sm opacity-80">
-              {getCurrentAvatarConfig().description}
+              {avatarConfig.description}
             </p>
           </div>
         </div>
-
         {/* Chat Panel */}
         <div className="flex-1 flex flex-col justify-between p-6">
           {/* Messages */}
@@ -177,7 +145,7 @@ export default function AlienChatDesktop() {
             {messages.length === 0 ? (
               <div className="text-center text-alien-cyan opacity-60 mt-8">
                 <p>Welcome to BizOptimize.ai</p>
-                <p className="text-sm mt-2">Start a conversation with your AI business consultant</p>
+                <p className="text-sm mt-2">Start a conversation with your Alien Tech AI Avatar</p>
               </div>
             ) : (
               messages.map((message) => (
@@ -190,7 +158,7 @@ export default function AlienChatDesktop() {
                   style={{ boxShadow: '0 0 8px #00ff41' }}
                 >
                   <div className="text-sm opacity-80 mb-1">
-                    {message.sender === 'user' ? 'You' : getCurrentAvatarConfig().name}
+                    {message.sender === 'user' ? 'You' : avatarConfig.name}
                   </div>
                   <div>{message.text}</div>
                   <div className="text-xs opacity-60 mt-2">
@@ -199,7 +167,6 @@ export default function AlienChatDesktop() {
                 </div>
               ))
             )}
-            
             {/* Typing Indicator */}
             {isTyping && (
               <div className="self-start px-4 py-3 rounded-2xl border border-alien-green bg-glass-dark">
@@ -213,17 +180,14 @@ export default function AlienChatDesktop() {
                 </div>
               </div>
             )}
-            
             <div ref={messagesEndRef} />
           </div>
-
           {/* Error Display */}
           {error && (
             <div className="mb-4 p-3 bg-red-900 border border-red-500 text-red-200 rounded-lg text-sm">
               Error: {error}
             </div>
           )}
-
           {/* Input */}
           <div className="flex items-center mt-2">
             <input
@@ -247,7 +211,6 @@ export default function AlienChatDesktop() {
             </button>
           </div>
         </div>
-
         {/* Neon circuit border corners */}
         <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-alien-green" />
         <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-alien-green" />
