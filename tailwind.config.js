@@ -4,32 +4,29 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './styles/**/*.css',
   ],
   theme: {
     extend: {
       colors: {
         // Alien Tech Color Palette
-        'alien': {
-          'black': '#0a0a0a',
-          'dark': '#1a1a1a',
-          'gray': '#2a2a2a',
-          'green': '#00ff41',
-          'green-glow': '#00ff41',
-          'cyan': '#00ffff',
-          'cyan-glow': '#00ffff',
-          'purple': '#8a2be2',
-          'purple-glow': '#8a2be2',
-          'plasma': '#ff00ff',
-          'void': '#1a0033',
-          'neon': '#00ff88',
-          'neon-glow': '#00ff88',
-        },
+        'alien-black': '#0a0a0a',
+        'alien-dark': '#1a1a1a',
+        'alien-gray': '#2a2a2a',
+        'alien-green': '#00ff41',
+        'alien-green-glow': '#00ff41',
+        'alien-cyan': '#00ffff',
+        'alien-cyan-glow': '#00ffff',
+        'alien-purple': '#8a2be2',
+        'alien-purple-glow': '#8a2be2',
+        'alien-plasma': '#ff00ff',
+        'alien-void': '#1a0033',
+        'alien-neon': '#00ff88',
+        'alien-neon-glow': '#00ff88',
         // Glass effect colors
-        'glass': {
-          'dark': 'rgba(26, 26, 26, 0.8)',
-          'darker': 'rgba(10, 10, 10, 0.9)',
-          'border': 'rgba(0, 255, 65, 0.3)',
-        }
+        'glass-dark': 'rgba(26, 26, 26, 0.8)',
+        'glass-darker': 'rgba(10, 10, 10, 0.9)',
+        'glass-border': 'rgba(0, 255, 65, 0.3)',
       },
       fontFamily: {
         'orbitron': ['Orbitron', 'monospace'],
