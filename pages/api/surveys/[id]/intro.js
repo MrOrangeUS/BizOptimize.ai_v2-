@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const session = await getSession({ req });
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
 
-  const surveyId = Number(req.query.id);
+  const surveyId = req.query.id;
   const survey = await prisma.survey.findUnique({ where: { id: surveyId } });
   if (!survey || survey.userId !== session.user.id) {
     return res.status(404).json({ error: 'Not found' });

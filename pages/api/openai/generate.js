@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const session = await getSession({ req });
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
 
-  const surveyId = Number(req.query.surveyId);
+  const surveyId = req.query.surveyId;
   const survey = await prisma.survey.findUnique({
     where: { id: surveyId },
     include: { answers: true },
