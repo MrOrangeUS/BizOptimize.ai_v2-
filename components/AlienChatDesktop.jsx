@@ -52,12 +52,11 @@ export default function AlienChatDesktop() {
     if (messages.length === 0 && !isGenerating && !currentVideo) {
       (async () => {
         setIsGenerating(true);
-        let imageId = null;
+        // Force use the new image ID from config
+        const imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
+        // Clear any cached old image ID
         if (typeof window !== 'undefined') {
-          imageId = localStorage.getItem('d-id-image-id');
-        }
-        if (!imageId) {
-          imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
+          localStorage.removeItem('d-id-image-id');
         }
         const voiceId = avatarConfig.voiceId;
         const welcome = "Welcome! To help optimize your business, could you tell me what your company does and your biggest current challenge?";
@@ -103,13 +102,8 @@ export default function AlienChatDesktop() {
         ...messages.map(msg => ({ user: msg.sender === 'user' ? msg.text : null, ai: msg.sender === 'ai' ? msg.text : null })).filter(e => e.user || e.ai),
         { user: inputText, ai: null }
       ];
-      let imageId = null;
-      if (typeof window !== 'undefined') {
-        imageId = localStorage.getItem('d-id-image-id');
-      }
-      if (!imageId) {
-        imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
-      }
+      // Always use the current image ID from config
+      const imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
       const voiceId = avatarConfig.voiceId;
       const res = await fetch('/api/did/chatgpt-avatar', {
         method: 'POST',
