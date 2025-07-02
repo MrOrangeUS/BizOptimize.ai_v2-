@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../../../lib/authOptions';
-import prisma from '../../../../lib/prisma';
-import { getDevSession } from '../../../../lib/devSession';
+import { authOptions } from '../../../../lib/authOptions.js';
+import prisma from '../../../../lib/prisma.js';
+import { getDevSession } from '../../../../lib/devSession.js';
 
 export async function GET(req, { params }) {
   let session = getDevSession();
