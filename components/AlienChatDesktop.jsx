@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { useAvatar } from '../lib/d-id';
 import { getAvatarConfig } from '../lib/d-id-config';
 
 export default function AlienChatDesktop() {
@@ -12,14 +11,7 @@ export default function AlienChatDesktop() {
   const videoRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  const {
-    generateAvatar,
-    generateAvatarWithAudio,
-    error,
-    clearVideo,
-    availableAvatars,
-    updateStoredImageIds
-  } = useAvatar();
+
 
   const avatarKey = 'business';
   const avatarConfig = getAvatarConfig(avatarKey);
