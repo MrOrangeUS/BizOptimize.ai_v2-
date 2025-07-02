@@ -43,9 +43,33 @@ export default function AlienChatDesktop() {
         setIsGenerating(true);
         const welcome = "Welcome! To help optimize your business, could you tell me what your company does and your biggest current challenge?";
         
-        // Simple fallback - just show the welcome message without trying D-ID
-        setMessages([{ id: Date.now(), text: welcome, sender: 'ai', timestamp: new Date() }]);
-        setIsGenerating(false);
+        try {
+          const res = await fetch('/api/did/chatgpt-avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: welcome,
+              imageId: avatarConfig.imageId,
+              voiceId: avatarConfig.voiceId,
+              conversationHistory: []
+            })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            setCurrentVideo(data.videoUrl);
+            setMessages([{ id: Date.now(), text: data.aiReply, sender: 'ai', timestamp: new Date() }]);
+          } else {
+            // Fallback to static avatar
+            setMessages([{ id: Date.now(), text: welcome, sender: 'ai', timestamp: new Date() }]);
+          }
+        } catch (error) {
+          console.error('Avatar generation failed:', error);
+          // Fallback to static avatar
+          setMessages([{ id: Date.now(), text: welcome, sender: 'ai', timestamp: new Date() }]);
+        } finally {
+          setIsGenerating(false);
+        }
       })();
     }
   }, []);
@@ -66,26 +90,49 @@ export default function AlienChatDesktop() {
     setIsTyping(true);
     setIsGenerating(true);
             try {
-          // Simple AI response without external APIs
-          const aiResponses = [
-            "That's a great question! To help you optimize your business, I'd like to understand more about your current processes. What specific area are you looking to improve?",
-            "Thank you for sharing that information. Based on what you've described, I can suggest several optimization strategies. What's your primary goal right now?",
-            "I understand your situation. Many businesses face similar challenges. Let me ask you this: what would success look like for you in the next 3-6 months?",
-            "That's an interesting perspective. To provide more targeted advice, could you tell me about your current team size and budget for improvements?",
-            "I appreciate you sharing those details. It sounds like you're ready to take your business to the next level. What's the biggest obstacle you're facing right now?"
-          ];
+          // Try D-ID API first
+          const res = await fetch('/api/did/chatgpt-avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: inputText,
+              imageId: avatarConfig.imageId,
+              voiceId: avatarConfig.voiceId,
+              conversationHistory: messages.map(msg => ({ user: msg.sender === 'user' ? msg.text : null, ai: msg.sender === 'ai' ? msg.text : null })).filter(e => e.user || e.ai)
+            })
+          });
           
-          // Simulate AI thinking time
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-          const aiMessage = {
-            id: Date.now() + 1,
-            text: randomResponse,
-            sender: 'ai',
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, aiMessage]);
+          if (res.ok) {
+            const data = await res.json();
+            setCurrentVideo(data.videoUrl);
+            const aiMessage = {
+              id: Date.now() + 1,
+              text: data.aiReply,
+              sender: 'ai',
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, aiMessage]);
+          } else {
+            // Fallback to simple responses
+            const aiResponses = [
+              "That's a great question! To help you optimize your business, I'd like to understand more about your current processes. What specific area are you looking to improve?",
+              "Thank you for sharing that information. Based on what you've described, I can suggest several optimization strategies. What's your primary goal right now?",
+              "I understand your situation. Many businesses face similar challenges. Let me ask you this: what would success look like for you in the next 3-6 months?",
+              "That's an interesting perspective. To provide more targeted advice, could you tell me about your current team size and budget for improvements?",
+              "I appreciate you sharing those details. It sounds like you're ready to take your business to the next level. What's the biggest obstacle you're facing right now?"
+            ];
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+            const aiMessage = {
+              id: Date.now() + 1,
+              text: randomResponse,
+              sender: 'ai',
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, aiMessage]);
+          }
         } catch (err) {
           console.error('Chat error:', err);
           const errorMessage = {
@@ -114,9 +161,15 @@ export default function AlienChatDesktop() {
         {/* Avatar Panel (left on desktop) */}
         <div className="w-full lg:w-1/3 flex flex-col items-center justify-center p-6 border-b-2 lg:border-b-0 lg:border-r-2 border-alien-green relative" style={{ minHeight: 300 }}>
           <div className="relative w-48 h-64 flex items-center justify-center">
+            {/* Fallback static avatar when no video */}
+            {!currentVideo && (
+              <div className="w-40 h-52 flex items-center justify-center rounded-lg border-2 border-alien-green shadow-neon bg-gradient-to-br from-alien-green to-alien-cyan">
+                <span className="text-white text-7xl flex items-center justify-center w-full h-full">👤</span>
+              </div>
+            )}
             <video
               ref={videoRef}
-              className="w-40 h-52 max-w-xs max-h-80 rounded-lg object-cover border-2 border-alien-green shadow-neon cursor-pointer"
+              className="w-40 h-52 max-w-xs max-h-80 rounded-lg object-cover border-2 border-alien-green shadow-neon cursor-pointer absolute top-0 left-0"
               style={{ display: currentVideo ? 'block' : 'none' }}
               controls={false}
               autoPlay
@@ -127,12 +180,6 @@ export default function AlienChatDesktop() {
               }}
               onError={(e) => {}}
             />
-            {/* Fallback static avatar when no video */}
-            {!currentVideo && (
-              <div className="w-40 h-52 bg-gradient-to-br from-alien-green to-alien-cyan rounded-lg border-2 border-alien-green shadow-neon flex items-center justify-center">
-                <div className="text-white text-4xl">👤</div>
-              </div>
-            )}
             {isGenerating && (
               <div className="absolute inset-0 flex items-center justify-center bg-alien-black bg-opacity-75 rounded-lg">
                 <div className="text-alien-green text-sm font-orbitron animate-pulse">Generating Avatar...</div>
@@ -170,6 +217,7 @@ export default function AlienChatDesktop() {
           </div>
           <div className="flex items-center gap-2 mt-4">
             <input
+              id="chat-input"
               type="text"
               className="flex-1 px-4 py-3 rounded-lg border border-alien-green bg-alien-dark text-alien-green focus:outline-none focus:ring-2 focus:ring-alien-green"
               placeholder="Type your message..."
