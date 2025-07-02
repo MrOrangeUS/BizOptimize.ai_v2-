@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Survey validation schemas
 export const surveyIntroSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(100, 'Name must be less than 100 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters').max(1000, 'Description must be less than 1000 characters'),
+  description: z.string().optional(), // Optional since we're not storing it in DB
 });
 
 export const surveyIdSchema = z.object({

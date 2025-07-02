@@ -29,8 +29,8 @@ export async function GET(
     }
     
     return NextResponse.json({ 
-      name: survey.name, 
-      description: survey.description 
+      name: survey.title, 
+      description: survey.title // Using title as description for now
     });
   } catch (error) {
     console.error('GET /api/surveys/[surveyId]/intro error:', error);
@@ -64,8 +64,7 @@ export async function POST(
     const updated = await prisma.survey.update({
       where: { id: surveyId },
       data: { 
-        name: body.name, 
-        description: body.description 
+        title: body.name // Map name to title
       },
     });
     
