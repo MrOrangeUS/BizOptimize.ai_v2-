@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { useAvatar } from '../lib/d-id';
 import { getAvatarConfig } from '../lib/d-id-config';
