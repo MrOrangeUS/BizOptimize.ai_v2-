@@ -23,9 +23,6 @@ export default function AlienChatDesktop() {
 
   const avatarKey = 'business';
   const avatarConfig = getAvatarConfig(avatarKey);
-  
-  // Debug: Log the avatar config
-  console.log('Avatar config:', avatarConfig);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
