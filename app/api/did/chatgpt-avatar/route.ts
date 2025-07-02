@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const dIdResponse = await fetch('https://api.d-id.com/talks', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DID_API_KEY}`,
+        'Authorization': `Bearer ${process.env.D_ID_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(dIdPayload),
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       
       const pollResponse = await fetch(`https://api.d-id.com/talks/${dIdData.id}`, {
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DID_API_KEY}`,
+          'Authorization': `Bearer ${process.env.D_ID_API_KEY}`,
         },
       });
       
