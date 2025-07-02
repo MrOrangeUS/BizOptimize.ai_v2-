@@ -56,7 +56,7 @@ export default function AlienChatDesktop() {
           imageId = localStorage.getItem('d-id-image-id');
         }
         if (!imageId) {
-          imageId = avatarConfig.imageId || 'img_RrS5X5lS6temdRa1dbuZa';
+          imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
         }
         const voiceId = avatarConfig.voiceId;
         const welcome = "Welcome! To help optimize your business, could you tell me what your company does and your biggest current challenge?";
@@ -107,7 +107,7 @@ export default function AlienChatDesktop() {
         imageId = localStorage.getItem('d-id-image-id');
       }
       if (!imageId) {
-        imageId = avatarConfig.imageId || 'img_RrS5X5lS6temdRa1dbuZa';
+        imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
       }
       const voiceId = avatarConfig.voiceId;
       const res = await fetch('/api/did/chatgpt-avatar', {
@@ -155,13 +155,13 @@ export default function AlienChatDesktop() {
 
   return (
     <div className="min-h-screen bg-alien-black flex items-center justify-center font-orbitron px-4 py-4">
-      <div className="w-full max-w-4xl bg-alien-black rounded-2xl shadow-neon flex flex-col md:flex-row border-2 border-alien-green relative overflow-hidden" style={{ boxShadow: '0 0 32px #00ff41' }}>
+      <div className="w-full max-w-5xl bg-alien-black rounded-2xl shadow-neon flex flex-col lg:flex-row border-2 border-alien-green relative overflow-hidden" style={{ boxShadow: '0 0 32px #00ff41' }}>
         {/* Avatar Panel (left on desktop) */}
-        <div className="w-full md:w-2/5 flex flex-col items-center justify-center p-4 border-b-2 md:border-b-0 md:border-r-2 border-alien-green relative" style={{ minHeight: 280 }}>
-          <div className="relative w-40 h-52 flex items-center justify-center">
+        <div className="w-full lg:w-1/3 flex flex-col items-center justify-center p-6 border-b-2 lg:border-b-0 lg:border-r-2 border-alien-green relative" style={{ minHeight: 300 }}>
+          <div className="relative w-48 h-64 flex items-center justify-center">
             <video
               ref={videoRef}
-              className="w-36 h-48 max-w-xs max-h-80 rounded-lg object-cover border-2 border-alien-green shadow-neon cursor-pointer"
+              className="w-40 h-52 max-w-xs max-h-80 rounded-lg object-cover border-2 border-alien-green shadow-neon cursor-pointer"
               style={{ display: currentVideo ? 'block' : 'none' }}
               controls={false}
               autoPlay
@@ -185,8 +185,8 @@ export default function AlienChatDesktop() {
           </div>
         </div>
         {/* Chat Panel (right on desktop) */}
-        <div className="flex-1 flex flex-col justify-between p-4 min-w-0">
-          <div className="flex-1 flex flex-col gap-3 overflow-y-auto mb-3" style={{ minHeight: 280 }}>
+        <div className="flex-1 flex flex-col justify-between p-6 min-w-0">
+          <div className="flex-1 flex flex-col gap-4 overflow-y-auto mb-4" style={{ minHeight: 300 }}>
             {messages.length === 0 ? (
               <div className="text-center text-alien-cyan opacity-60 mt-8">
                 <p>Welcome to BizOptimize.ai</p>
@@ -196,21 +196,21 @@ export default function AlienChatDesktop() {
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`px-3 py-2 rounded-xl max-w-[85%] border border-alien-green text-alien-green shadow-neon ${message.sender === 'user' ? 'self-end bg-alien-dark' : 'self-start bg-glass-dark'}`}
+                  className={`px-4 py-3 rounded-2xl max-w-[80%] border border-alien-green text-alien-green shadow-neon ${message.sender === 'user' ? 'self-end bg-alien-dark' : 'self-start bg-glass-dark'}`}
                   style={{ boxShadow: '0 0 8px #00ff41' }}
                 >
-                  <div className="text-xs opacity-80 mb-1">{message.sender === 'user' ? 'You' : avatarConfig.name}</div>
-                  <div className="text-sm">{message.text}</div>
-                  <div className="text-xs opacity-60 mt-1">{message.timestamp.toLocaleTimeString()}</div>
+                  <div className="text-sm opacity-80 mb-1">{message.sender === 'user' ? 'You' : avatarConfig.name}</div>
+                  <div>{message.text}</div>
+                  <div className="text-xs opacity-60 mt-2">{message.timestamp.toLocaleTimeString()}</div>
                 </div>
               ))
             )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-2 mt-4">
             <input
               type="text"
-              className="flex-1 px-3 py-2 rounded-lg border border-alien-green bg-alien-dark text-alien-green focus:outline-none focus:ring-2 focus:ring-alien-green text-sm"
+              className="flex-1 px-4 py-3 rounded-lg border border-alien-green bg-alien-dark text-alien-green focus:outline-none focus:ring-2 focus:ring-alien-green"
               placeholder="Type your message..."
               value={inputText}
               onChange={e => setInputText(e.target.value)}
@@ -218,7 +218,7 @@ export default function AlienChatDesktop() {
               disabled={isTyping || isGenerating}
             />
             <button
-              className="px-4 py-2 bg-gradient-to-r from-alien-green to-alien-cyan text-white font-semibold rounded-lg hover:from-alien-cyan hover:to-alien-green transition-all duration-200 shadow-lg hover:shadow-xl text-sm"
+              className="px-6 py-3 bg-gradient-to-r from-alien-green to-alien-cyan text-white font-semibold rounded-lg hover:from-alien-cyan hover:to-alien-green transition-all duration-200 shadow-lg hover:shadow-xl"
               onClick={handleSendMessage}
               disabled={isTyping || isGenerating || !inputText.trim()}
             >
