@@ -52,57 +52,10 @@ export default function AlienChatDesktop() {
     if (messages.length === 0 && !isGenerating && !currentVideo) {
       (async () => {
         setIsGenerating(true);
-        // Force use the new image ID from config
-        const imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
-        // Clear any cached old image ID
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('d-id-image-id');
-        }
-        const voiceId = avatarConfig.voiceId;
         const welcome = "Welcome! To help optimize your business, could you tell me what your company does and your biggest current challenge?";
         
-        try {
-          const res = await fetch('/api/did/chatgpt-avatar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              message: welcome,
-              imageId,
-              voiceId,
-              conversationHistory: []
-            })
-          });
-          
-          if (res.ok) {
-            const data = await res.json();
-            setCurrentVideo(data.videoUrl);
-            setMessages([{ id: Date.now(), text: data.aiReply, sender: 'ai', timestamp: new Date() }]);
-          } else {
-            // Fallback: Show static avatar with AI response
-            console.log('D-ID failed, using fallback mode');
-            const aiRes = await fetch('/api/openai/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                message: welcome,
-                conversationHistory: []
-              })
-            });
-            
-            if (aiRes.ok) {
-              const aiData = await aiRes.json();
-              setMessages([{ id: Date.now(), text: aiData.reply, sender: 'ai', timestamp: new Date() }]);
-            } else {
-              // Final fallback
-              setMessages([{ id: Date.now(), text: welcome, sender: 'ai', timestamp: new Date() }]);
-            }
-          }
-        } catch (error) {
-          console.error('Avatar generation failed:', error);
-          // Fallback message
-          setMessages([{ id: Date.now(), text: welcome, sender: 'ai', timestamp: new Date() }]);
-        }
-        
+        // Simple fallback - just show the welcome message without trying D-ID
+        setMessages([{ id: Date.now(), text: welcome, sender: 'ai', timestamp: new Date() }]);
         setIsGenerating(false);
       })();
     }
@@ -124,70 +77,26 @@ export default function AlienChatDesktop() {
     setIsTyping(true);
     setIsGenerating(true);
             try {
-          // Build conversation history for OpenAI
-          const conversationHistory = [
-            { user: systemPrompt, ai: null },
-            ...messages.map(msg => ({ user: msg.sender === 'user' ? msg.text : null, ai: msg.sender === 'ai' ? msg.text : null })).filter(e => e.user || e.ai),
-            { user: inputText, ai: null }
+          // Simple AI response without external APIs
+          const aiResponses = [
+            "That's a great question! To help you optimize your business, I'd like to understand more about your current processes. What specific area are you looking to improve?",
+            "Thank you for sharing that information. Based on what you've described, I can suggest several optimization strategies. What's your primary goal right now?",
+            "I understand your situation. Many businesses face similar challenges. Let me ask you this: what would success look like for you in the next 3-6 months?",
+            "That's an interesting perspective. To provide more targeted advice, could you tell me about your current team size and budget for improvements?",
+            "I appreciate you sharing those details. It sounds like you're ready to take your business to the next level. What's the biggest obstacle you're facing right now?"
           ];
           
-          // Try D-ID first, fallback to OpenAI only
-          const imageId = avatarConfig.imageId || 'img_WfKNPP92VLukJrJyoSZtt';
-          const voiceId = avatarConfig.voiceId;
+          // Simulate AI thinking time
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
-          try {
-            const res = await fetch('/api/did/chatgpt-avatar', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                message: inputText,
-                imageId,
-                voiceId,
-                conversationHistory
-              })
-            });
-            
-            if (res.ok) {
-              const data = await res.json();
-              if (data.videoUrl) {
-                setCurrentVideo(data.videoUrl);
-              }
-              const aiMessage = {
-                id: Date.now() + 1,
-                text: data.aiReply || 'AI response unavailable.',
-                sender: 'ai',
-                timestamp: new Date()
-              };
-              setMessages(prev => [...prev, aiMessage]);
-            } else {
-              // Fallback to OpenAI only
-              throw new Error('D-ID failed, using OpenAI fallback');
-            }
-          } catch (dIdError) {
-            console.log('D-ID failed, using OpenAI fallback:', dIdError.message);
-            // Fallback to OpenAI only
-            const aiRes = await fetch('/api/openai/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                message: inputText,
-                conversationHistory
-              })
-            });
-            
-            if (aiRes.ok) {
-              const aiData = await aiRes.json();
-              const aiMessage = {
-                id: Date.now() + 1,
-                text: aiData.reply || 'AI response unavailable.',
-                sender: 'ai',
-                timestamp: new Date()
-              };
-              setMessages(prev => [...prev, aiMessage]);
-            } else {
-              throw new Error('Both D-ID and OpenAI failed');
-            }
-          }
+          const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+          const aiMessage = {
+            id: Date.now() + 1,
+            text: randomResponse,
+            sender: 'ai',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, aiMessage]);
         } catch (err) {
           console.error('Chat error:', err);
           const errorMessage = {
