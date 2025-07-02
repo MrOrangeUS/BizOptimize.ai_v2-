@@ -6,23 +6,25 @@ export default function AlienChatDesktop() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const videoRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const {
     generateAvatar,
     generateAvatarWithAudio,
-    isGenerating,
-    currentVideo,
     error,
     clearVideo,
     availableAvatars,
     updateStoredImageIds
   } = useAvatar();
 
-  // Always use the 'alien' avatar
-  const avatarKey = 'alien';
+  const avatarKey = 'business';
   const avatarConfig = getAvatarConfig(avatarKey);
+  
+  // Debug: Log the avatar config
+  console.log('Avatar config:', avatarConfig);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -33,53 +35,114 @@ export default function AlienChatDesktop() {
   useEffect(() => {
     if (currentVideo && videoRef.current) {
       videoRef.current.src = currentVideo;
-      videoRef.current.play();
+      const playVideo = async () => {
+        try {
+          await videoRef.current.play();
+        } catch (error) {
+          // Autoplay policy
+        }
+      };
+      playVideo();
     }
   }, [currentVideo]);
 
+  // Initial welcome message and avatar
+  useEffect(() => {
+    if (messages.length === 0 && !isGenerating && !currentVideo) {
+      (async () => {
+        setIsGenerating(true);
+        let imageId = null;
+        if (typeof window !== 'undefined') {
+          imageId = localStorage.getItem('d-id-image-id');
+        }
+        if (!imageId) {
+          imageId = avatarConfig.imageId || 'img_RrS5X5lS6temdRa1dbuZa';
+        }
+        const voiceId = avatarConfig.voiceId;
+        const welcome = "Welcome! To help optimize your business, could you tell me what your company does and your biggest current challenge?";
+        const res = await fetch('/api/did/chatgpt-avatar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: welcome,
+            imageId,
+            voiceId,
+            conversationHistory: []
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentVideo(data.videoUrl);
+          setMessages([{ id: Date.now(), text: data.aiReply, sender: 'ai', timestamp: new Date() }]);
+        }
+        setIsGenerating(false);
+      })();
+    }
+  }, []);
+
+  // Strong business system prompt
+  const systemPrompt = `You are an expert business optimization consultant. Your job is to ask one targeted, actionable business question at a time, and provide concise, expert advice. Always focus on business growth, operational efficiency, and actionable next steps. Keep responses short and professional.`;
+
   const handleSendMessage = async () => {
     if (!inputText.trim() || isTyping) return;
-
     const userMessage = {
       id: Date.now(),
       text: inputText,
       sender: 'user',
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
-
+    setIsGenerating(true);
     try {
-      // Generate avatar response with custom audio
-      await generateAvatarWithAudio(
-        `Thank you for your message: "${inputText}". I am your Alien Tech AI Avatar. How can I assist you with your business optimization needs today?`,
-        avatarKey,
-        avatarConfig.voiceId
-      );
-
+      // Build conversation history for OpenAI
+      const conversationHistory = [
+        { user: systemPrompt, ai: null },
+        ...messages.map(msg => ({ user: msg.sender === 'user' ? msg.text : null, ai: msg.sender === 'ai' ? msg.text : null })).filter(e => e.user || e.ai),
+        { user: inputText, ai: null }
+      ];
+      let imageId = null;
+      if (typeof window !== 'undefined') {
+        imageId = localStorage.getItem('d-id-image-id');
+      }
+      if (!imageId) {
+        imageId = avatarConfig.imageId || 'img_RrS5X5lS6temdRa1dbuZa';
+      }
+      const voiceId = avatarConfig.voiceId;
+      const res = await fetch('/api/did/chatgpt-avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: inputText,
+          imageId,
+          voiceId,
+          conversationHistory
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.videoUrl) {
+        throw new Error(data.error || 'Failed to generate avatar video');
+      }
+      setCurrentVideo(data.videoUrl);
       const aiMessage = {
         id: Date.now() + 1,
-        text: `I am your Alien Tech AI Avatar. How can I assist you with your business optimization needs today?`,
+        text: data.aiReply || 'AI response unavailable.',
         sender: 'ai',
-        avatar: avatarKey,
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, aiMessage]);
     } catch (err) {
-      console.error('Error generating avatar response:', err);
       const errorMessage = {
         id: Date.now() + 1,
         text: 'I apologize, but I encountered an issue processing your request. Please try again.',
         sender: 'ai',
-        avatar: avatarKey,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
+      setIsGenerating(false);
     }
   };
 
@@ -92,130 +155,77 @@ export default function AlienChatDesktop() {
 
   return (
     <div className="min-h-screen bg-alien-black flex items-center justify-center font-orbitron px-2 py-8">
-      <div className="w-full max-w-6xl h-[700px] bg-alien-black rounded-2xl shadow-neon flex flex-col md:flex-row border-2 border-alien-green relative overflow-hidden"
-           style={{ boxShadow: '0 0 32px #00ff41' }}>
-        {/* Avatar Panel */}
-        <div className="md:w-2/5 w-full flex flex-col items-center justify-center p-6 border-b-2 md:border-b-0 md:border-r-2 border-alien-green relative"
-             style={{ minHeight: 300 }}>
-          {/* Avatar Display */}
+      <div className="w-full max-w-5xl bg-alien-black rounded-2xl shadow-neon flex flex-col md:flex-row border-2 border-alien-green relative overflow-hidden" style={{ boxShadow: '0 0 32px #00ff41' }}>
+        {/* Avatar Panel (left on desktop) */}
+        <div className="w-full md:w-1/3 flex flex-col items-center justify-center p-6 border-b-2 md:border-b-0 md:border-r-2 border-alien-green relative" style={{ minHeight: 300 }}>
           <div className="relative w-48 h-64 flex items-center justify-center">
-            {/* Video Player */}
             <video
               ref={videoRef}
-              className="w-40 h-52 rounded-lg object-cover border-2 border-alien-green shadow-neon"
+              className="w-40 h-52 max-w-xs max-h-80 rounded-lg object-cover border-2 border-alien-green shadow-neon cursor-pointer"
               style={{ display: currentVideo ? 'block' : 'none' }}
               controls={false}
               autoPlay
-              muted
-              loop
+              onClick={() => {
+                if (videoRef.current && videoRef.current.paused) {
+                  videoRef.current.play().catch(err => {});
+                }
+              }}
+              onError={(e) => {}}
             />
-            {/* Static Image (fallback) */}
-            <img
-              src="/avatar.png"
-              alt={avatarConfig.name}
-              className="w-40 h-52 rounded-lg object-cover border-2 border-alien-green shadow-neon"
-              style={{ display: currentVideo ? 'none' : 'block' }}
-            />
-            {/* Loading Indicator */}
             {isGenerating && (
               <div className="absolute inset-0 flex items-center justify-center bg-alien-black bg-opacity-75 rounded-lg">
-                <div className="text-alien-green text-sm font-orbitron animate-pulse">
-                  Generating Avatar...
-                </div>
+                <div className="text-alien-green text-sm font-orbitron animate-pulse">Generating Avatar...</div>
               </div>
             )}
-            {/* Neon Circuit Frame */}
-            <div className="absolute inset-0 pointer-events-none rounded-lg border-2 border-alien-green"
-                 style={{ boxShadow: '0 0 24px #00ff41', borderColor: '#00ff41' }} />
+            <div className="absolute inset-0 pointer-events-none rounded-lg border-2 border-alien-green" style={{ boxShadow: '0 0 24px #00ff41', borderColor: '#00ff41' }} />
           </div>
-          {/* Avatar Info */}
           <div className="mt-4 text-center">
-            <h3 className="text-alien-green font-bold text-lg">
-              {avatarConfig.name}
-            </h3>
-            <p className="text-alien-cyan text-sm opacity-80">
-              {avatarConfig.description}
-            </p>
+            <h3 className="text-alien-green font-bold text-lg">{avatarConfig.name}</h3>
+            <p className="text-alien-cyan text-sm opacity-80">{avatarConfig.description}</p>
           </div>
         </div>
-        {/* Chat Panel */}
-        <div className="flex-1 flex flex-col justify-between p-6">
-          {/* Messages */}
-          <div className="flex-1 flex flex-col gap-4 overflow-y-auto mb-4">
+        {/* Chat Panel (right on desktop) */}
+        <div className="flex-1 flex flex-col justify-between p-6 min-w-0">
+          <div className="flex-1 flex flex-col gap-4 overflow-y-auto mb-4" style={{ minHeight: 300 }}>
             {messages.length === 0 ? (
               <div className="text-center text-alien-cyan opacity-60 mt-8">
                 <p>Welcome to BizOptimize.ai</p>
-                <p className="text-sm mt-2">Start a conversation with your Alien Tech AI Avatar</p>
+                <p className="text-sm mt-2">Start a conversation with your AI Business Consultant</p>
               </div>
             ) : (
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`
-                    px-4 py-3 rounded-2xl max-w-[80%] border border-alien-green text-alien-green shadow-neon
-                    ${message.sender === 'user' ? 'self-end bg-alien-dark' : 'self-start bg-glass-dark'}
-                  `}
+                  className={`px-4 py-3 rounded-2xl max-w-[80%] border border-alien-green text-alien-green shadow-neon ${message.sender === 'user' ? 'self-end bg-alien-dark' : 'self-start bg-glass-dark'}`}
                   style={{ boxShadow: '0 0 8px #00ff41' }}
                 >
-                  <div className="text-sm opacity-80 mb-1">
-                    {message.sender === 'user' ? 'You' : avatarConfig.name}
-                  </div>
+                  <div className="text-sm opacity-80 mb-1">{message.sender === 'user' ? 'You' : avatarConfig.name}</div>
                   <div>{message.text}</div>
-                  <div className="text-xs opacity-60 mt-2">
-                    {message.timestamp.toLocaleTimeString()}
-                  </div>
+                  <div className="text-xs opacity-60 mt-2">{message.timestamp.toLocaleTimeString()}</div>
                 </div>
               ))
             )}
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className="self-start px-4 py-3 rounded-2xl border border-alien-green bg-glass-dark">
-                <div className="flex items-center space-x-2">
-                  <div className="text-alien-green text-sm">Typing</div>
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-alien-green rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-alien-green rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-alien-green rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
-          {/* Error Display */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-900 border border-red-500 text-red-200 rounded-lg text-sm">
-              Error: {error}
-            </div>
-          )}
-          {/* Input */}
-          <div className="flex items-center mt-2">
+          <div className="flex items-center gap-2 mt-4">
             <input
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="flex-1 bg-transparent border border-alien-green rounded-full px-4 py-3 text-alien-green placeholder-alien-green placeholder-opacity-50 outline-none font-orbitron shadow-neon"
+              type="text"
+              className="flex-1 px-4 py-3 rounded-lg border border-alien-green bg-alien-dark text-alien-green focus:outline-none focus:ring-2 focus:ring-alien-green"
               placeholder="Type your message..."
-              style={{ boxShadow: '0 0 8px #00ff41' }}
-              disabled={isTyping}
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              onKeyDown={handleKeyPress}
+              disabled={isTyping || isGenerating}
             />
-            <button 
+            <button
+              className="px-6 py-3 bg-gradient-to-r from-alien-green to-alien-cyan text-white font-semibold rounded-lg hover:from-alien-cyan hover:to-alien-green transition-all duration-200 shadow-lg hover:shadow-xl"
               onClick={handleSendMessage}
-              disabled={!inputText.trim() || isTyping}
-              className="ml-2 p-3 rounded-full border-2 border-alien-green shadow-neon disabled:opacity-50 disabled:cursor-not-allowed hover:bg-alien-green hover:text-alien-black transition-colors"
-              style={{ boxShadow: '0 0 12px #00ff41' }}
+              disabled={isTyping || isGenerating || !inputText.trim()}
             >
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-              </svg>
+              Send
             </button>
           </div>
         </div>
-        {/* Neon circuit border corners */}
-        <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-alien-green" />
-        <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-alien-green" />
-        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-alien-green" />
-        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-alien-green" />
       </div>
     </div>
   );

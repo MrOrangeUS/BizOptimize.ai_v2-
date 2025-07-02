@@ -32,6 +32,16 @@ export default function Login() {
   const [providers, setProviders] = useState(null);
   const { status } = useSession();
   const router = useRouter();
+  const [devUsername, setDevUsername] = useState('');
+  const [devPassword, setDevPassword] = useState('');
+  const [devError, setDevError] = useState('');
+
+  // Auto-redirect in dev mode
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  //     router.replace('/dashboard');
+  //   }
+  // }, [router]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -72,6 +82,49 @@ export default function Login() {
             <li className="flex items-start"><span className="text-alien-green mr-2">•</span>AI-powered insights in under 15 minutes</li>
           </ul>
         </div>
+        {/* Dev Credentials Login (only in dev mode) */}
+        {process.env.NODE_ENV === 'development' && providers && providers.credentials && (
+          <form
+            className="mb-6 bg-alien-dark bg-opacity-80 rounded-xl p-6 border border-alien-green/30 shadow-neon"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setDevError('');
+              const res = await signIn('credentials', {
+                username: devUsername,
+                password: devPassword,
+                redirect: false,
+              });
+              if (res?.error) {
+                setDevError('Invalid username or password');
+              } else {
+                router.replace('/dashboard');
+              }
+            }}
+          >
+            <h3 className="text-alien-green text-lg font-bold mb-2">Dev Login</h3>
+            <input
+              type="text"
+              placeholder="Username"
+              value={devUsername}
+              onChange={e => setDevUsername(e.target.value)}
+              className="w-full mb-2 px-3 py-2 rounded border border-alien-green bg-alien-black text-alien-green focus:outline-none"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={devPassword}
+              onChange={e => setDevPassword(e.target.value)}
+              className="w-full mb-2 px-3 py-2 rounded border border-alien-green bg-alien-black text-alien-green focus:outline-none"
+            />
+            {devError && <div className="text-red-500 mb-2">{devError}</div>}
+            <button
+              type="submit"
+              className="w-full px-6 py-3 bg-alien-green border-alien-green text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-cyan hover:text-alien-black transition-all duration-200 flex items-center justify-center text-lg tracking-wide border-2 focus:outline-none focus:ring-2 focus:ring-alien-green"
+            >
+              Login as Dev
+            </button>
+          </form>
+        )}
         {/* Login Buttons */}
         <div className="mt-8 space-y-4">
           {providers && Object.values(providers).map((provider) => (

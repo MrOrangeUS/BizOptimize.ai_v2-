@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
+  console.log('SESSION:', session, 'STATUS:', status);
   const [surveys, setSurveys] = useState([]);
   
   useEffect(() => {
@@ -20,7 +21,11 @@ export default function Dashboard() {
   }, []);
   
   async function createSurvey() {
-    const res = await fetch('/api/surveys', { method: 'POST' });
+    const res = await fetch('/api/surveys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Untitled Analysis' })
+    });
     const survey = await res.json();
     window.location.href = `/survey/${survey.id}/intro`;
   }
@@ -123,7 +128,7 @@ export default function Dashboard() {
                     className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200"
                   >
                     <h3 className="font-medium text-gray-900">
-                      {s.name || 'Untitled Analysis'}
+                      {s.title || 'Untitled Analysis'}
                     </h3>
                     <p className="text-sm text-gray-500 mt-1">Click to review or continue</p>
                   </Link>

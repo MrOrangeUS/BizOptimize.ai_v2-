@@ -1,32 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import DIDAvatarManager, { useAvatar } from '../lib/d-id.js';
 
 export default function AvatarPlayer({ 
   text, 
-  presenterId = 'amy-Aq6OmG2Xc9',
+  presenterId = 'business',
   autoPlay = true,
   className = "",
   size = "medium",
   showControls = true
 }) {
-  const { generateAvatar, clearVideo, isGenerating, currentVideo, error } = useAvatar();
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
+
+  const generateAvatar = async (message, imageId, voiceId) => {
+    if (!message || !imageId || !voiceId) {
+      setError('Missing required fields: message, imageId, or voiceId');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/did/chatgpt-avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, imageId, voiceId })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to generate avatar');
+      }
+
+      const data = await res.json();
+      if (data.videoUrl) {
+        setCurrentVideo(data.videoUrl);
+        setShowAvatar(true);
+      } else {
+        throw new Error('No video URL received');
+      }
+    } catch (err) {
+      console.error('Avatar generation error:', err);
+      setError(err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const clearVideo = () => {
+    setCurrentVideo(null);
+    setError(null);
+    setShowAvatar(false);
+  };
 
   // Auto-generate avatar when text changes
   useEffect(() => {
     if (text && autoPlay) {
-      generateAvatar(text, presenterId);
-      setShowAvatar(true);
+      // Get D-ID imageId and voiceId from localStorage or config
+      let imageId = null;
+      let voiceId = null;
+      
+      if (typeof window !== 'undefined') {
+        imageId = localStorage.getItem('d-id-image-id');
+        voiceId = localStorage.getItem('d-id-voice-id') || 'fCxG8OHm4STbIsWe4aT9'; // User's specific voice ID
+      }
+
+      if (imageId && voiceId) {
+        generateAvatar(text, imageId, voiceId);
+      } else {
+        setError('Missing D-ID image ID or voice ID. Please upload an image first.');
+      }
     }
-  }, [text, presenterId, autoPlay, generateAvatar]);
+  }, [text, presenterId, autoPlay]);
 
   // Clear video when component unmounts
   useEffect(() => {
     return () => {
       clearVideo();
     };
-  }, [clearVideo]);
+  }, []);
 
   const handlePlay = () => {
     setIsPlaying(true);
@@ -42,7 +97,19 @@ export default function AvatarPlayer({
 
   const handleRetry = () => {
     if (text) {
-      generateAvatar(text, presenterId);
+      let imageId = null;
+      let voiceId = null;
+      
+      if (typeof window !== 'undefined') {
+        imageId = localStorage.getItem('d-id-image-id');
+        voiceId = localStorage.getItem('d-id-voice-id') || 'fCxG8OHm4STbIsWe4aT9';
+      }
+
+      if (imageId && voiceId) {
+        generateAvatar(text, imageId, voiceId);
+      } else {
+        setError('Missing D-ID image ID or voice ID. Please upload an image first.');
+      }
     }
   };
 
@@ -85,7 +152,7 @@ export default function AvatarPlayer({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center p-4">
               <div className="text-red-500 text-4xl mb-2">⚠️</div>
-              <p className="text-gray-600 text-sm mb-4">Avatar generation failed</p>
+              <p className="text-gray-600 text-sm mb-4">{error}</p>
               <button
                 onClick={handleRetry}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -139,7 +206,7 @@ export default function AvatarPlayer({
             <div className="flex items-center space-x-2">
               {!currentVideo && !isGenerating && !error && (
                 <button
-                  onClick={() => generateAvatar(text, presenterId)}
+                  onClick={handleRetry}
                   className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
                 >
                   Generate Avatar

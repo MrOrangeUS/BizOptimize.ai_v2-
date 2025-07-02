@@ -3,29 +3,19 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../lib/authOptions';
 import prisma from '../../../../lib/prisma';
 import { generateSummary } from '../../../../lib/openai';
+import { getDevSession } from '../../../../lib/devSession';
 
 export async function POST(req) {
+  let session = getDevSession();
+  if (!session) session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  const data = await req.json();
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { surveyId } = await req.json();
-    const survey = await prisma.survey.findUnique({
-      where: { id: surveyId },
-      include: { answers: true },
-    });
-    if (!survey || survey.userId !== session.user.id) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    }
-
-    let roadmap = await prisma.roadmap.findUnique({ where: { surveyId } });
-    if (!roadmap) {
-      const content = await generateSummary(survey);
-      roadmap = await prisma.roadmap.create({ data: { surveyId, content } });
-    }
-    return NextResponse.json({ roadmap });
-  } catch (error) {
-    console.error('/api/openai/summary error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const result = await generateSummary(data.answers);
+    return NextResponse.json({ result });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 } 

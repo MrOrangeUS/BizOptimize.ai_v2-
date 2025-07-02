@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../lib/authOptions';
 import prisma from '../../../../lib/prisma';
+import { getDevSession } from '../../../../lib/devSession';
 
 export async function GET(req, { params }) {
-  const session = await getServerSession(authOptions);
+  let session = getDevSession();
+  if (!session) session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   const survey = await prisma.survey.findUnique({ where: { id: params.surveyId } });
@@ -14,7 +16,8 @@ export async function GET(req, { params }) {
 }
 
 export async function POST(req, { params }) {
-  const session = await getServerSession(authOptions);
+  let session = getDevSession();
+  if (!session) session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   const survey = await prisma.survey.findUnique({ where: { id: params.surveyId } });
