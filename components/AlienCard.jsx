@@ -46,7 +46,7 @@ const AlienCard = ({ title, subtitle, children, variant = 'default' }) => {
 
   return (
     <div 
-      className={`alien-card ${getVariantStyles()}`}
+      className={`relative bg-alien-black text-alien-green p-6 rounded-lg overflow-hidden border border-alien-green border-opacity-20 transition-all duration-300 ease-in-out hover:border-opacity-50 ${getVariantStyles()}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
@@ -58,7 +58,7 @@ const AlienCard = ({ title, subtitle, children, variant = 'default' }) => {
           key={hex.id}
           className="floating-hexagon"
           style={{
-            left: `${hex.left}%`,
+            left: `${hex.left}%`, 
             animationDelay: `${hex.delay}s`,
             width: `${hex.size}px`,
             height: `${hex.size}px`
@@ -73,17 +73,17 @@ const AlienCard = ({ title, subtitle, children, variant = 'default' }) => {
       <div className="relative z-10">
         {title && (
           <h3 className="alien-title text-2xl mb-2">
-            {title}
+            {title} 
           </h3>
         )}
-        
+
         {subtitle && (
           <p className="alien-subtitle text-sm mb-4">
-            {subtitle}
+            {subtitle} 
           </p>
         )}
-        
-        <div className="text-alien-green font-mono">
+
+        <div className="text-alien-cyan font-mono">
           {children}
         </div>
       </div>
@@ -91,7 +91,7 @@ const AlienCard = ({ title, subtitle, children, variant = 'default' }) => {
       {/* Glitch effect on hover */}
       {isHovered && (
         <div className="absolute inset-0 bg-alien-green opacity-5 animate-static-flicker pointer-events-none" />
-      )}
+      )} 
     </div>
   );
 };
@@ -108,7 +108,7 @@ export const AlienButton = ({ children, onClick, variant = 'default' }) => {
 
   return (
     <button
-      className={`alien-btn ${isClicked ? 'animate-glitch-flicker' : ''}`}
+      className={`px-6 py-3 bg-alien-green text-alien-black rounded-md font-mono uppercase tracking-wider transition-all duration-300 ease-in-out hover:bg-opacity-80 active:scale-95 ${isClicked ? 'animate-glitch-flicker' : ''}`}
       onClick={handleClick}
     >
       {children}
@@ -120,7 +120,7 @@ export const AlienInput = ({ placeholder, value, onChange, type = 'text' }) => {
   return (
     <input
       type={type}
-      className="alien-input w-full"
+      className="alien-input w-full px-4 py-3 bg-alien-black text-alien-green border border-alien-green border-opacity-20 rounded-md focus:outline-none focus:border-opacity-80 transition-all duration-300 ease-in-out font-mono"
       placeholder={placeholder}
       value={value}
       onChange={onChange}
@@ -131,7 +131,7 @@ export const AlienInput = ({ placeholder, value, onChange, type = 'text' }) => {
 export const AlienSection = ({ title, children }) => {
   return (
     <section className="min-h-screen bg-gradient-alien relative overflow-hidden">
-      {/* Background hexagons */}
+      {/* Background hexagons */} 
       <div className="absolute inset-0">
         {Array.from({ length: 10 }).map((_, i) => (
           <div
@@ -148,7 +148,7 @@ export const AlienSection = ({ title, children }) => {
 
       <div className="relative z-10 container mx-auto px-6 py-12">
         {title && (
-          <h1 className="alien-title text-center mb-12">
+          <h1 className="text-4xl font-bold text-center text-alien-green mb-12 font-mono uppercase tracking-wide">
             {title}
           </h1>
         )}
@@ -174,7 +174,7 @@ export const AlienCursor = () => {
         y: e.clientY
       };
       
-      setTrails(prev => [...prev.slice(-5), newTrail]);
+      setTrails(prev => [...prev.slice(-5), newTrail]); 
       
       // Remove old trails
       setTimeout(() => {
@@ -188,7 +188,7 @@ export const AlienCursor = () => {
 
   return (
     <>
-      <div
+      <div 
         className="cursor-dot"
         style={{
           left: position.x - 2,
@@ -196,7 +196,7 @@ export const AlienCursor = () => {
         }}
       />
       {trails.map((trail) => (
-        <div
+        <div 
           key={trail.id}
           className="cursor-trail"
           style={{

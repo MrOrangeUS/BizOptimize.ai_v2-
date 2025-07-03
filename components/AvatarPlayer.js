@@ -136,14 +136,23 @@ export default function AvatarPlayer({
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${className}`}>
+    <div className={`
+      bg-alien-dark bg-opacity-80 
+      border border-alien-green/50 
+      rounded-xl 
+      shadow-neon 
+      overflow-hidden 
+      font-orbitron 
+      text-alien-green
+      ${className}
+    `}>
       {/* Avatar Video Container */}
       <div className={`relative ${sizeClasses[size]} bg-gradient-to-br from-blue-50 to-indigo-100`}>
         {isGenerating && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 text-sm">Generating avatar...</p>
+              <p className="text-alien-green text-sm">Generating avatar...</p>
             </div>
           </div>
         )}
@@ -152,11 +161,11 @@ export default function AvatarPlayer({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center p-4">
               <div className="text-red-500 text-4xl mb-2">⚠️</div>
-              <p className="text-gray-600 text-sm mb-4">{error}</p>
+              <p className="text-alien-green text-sm mb-4">{error}</p>
               <button
                 onClick={handleRetry}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+                className="px-4 py-2 bg-alien-green text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-cyan transition-colors text-sm"
+                >
                 Retry
               </button>
             </div>
@@ -178,41 +187,43 @@ export default function AvatarPlayer({
         )}
 
         {/* Presenter Info Overlay */}
+        {/* Added Conditional Rendering for ShowAvatar */}
         {currentVideo && !isGenerating && !error && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-            <div className="text-white">
-              <h3 className="font-semibold">{presenter.name}</h3>
-              <p className="text-sm opacity-90">{presenter.role}</p>
+            <div className="text-alien-green">
+              <h3 className="font-audiowide font-semibold">{presenter.name}</h3>
+              <p className="text-sm opacity-90 font-orbitron">{presenter.role}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Controls */}
-      {showControls && (
-        <div className="p-4 border-t border-gray-200">
+      {/* Added Conditional Rendering for ShowAvatar */}
+      {showControls && showAvatar && (
+        <div className="p-4 border-t border-alien-green/30 bg-alien-dark">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-alien-cyan">
                 {presenter.name} - {presenter.role}
               </span>
               {isPlaying && (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                <span className="text-xs bg-alien-green/20 text-alien-green px-2 py-1 rounded-full">
                   Speaking
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center space-x-2">
               {!currentVideo && !isGenerating && !error && (
                 <button
                   onClick={handleRetry}
-                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                >
+                  className="px-3 py-1 bg-alien-green text-alien-black text-sm rounded hover:bg-alien-cyan transition-colors font-bold"
+                  >
                   Generate Avatar
                 </button>
               )}
-              
+
               {currentVideo && (
                 <button
                   onClick={clearVideo}

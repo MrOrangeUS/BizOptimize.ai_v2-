@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { getAvatarConfig } from '../lib/d-id-config';
+import AvatarPlayer from './AvatarPlayer'; // Assuming AvatarPlayer handles the D-ID video
+
 
 export default function AlienChatDesktop() {
   const [messages, setMessages] = useState([]);
@@ -21,20 +23,6 @@ export default function AlienChatDesktop() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle video playback when ready
-  useEffect(() => {
-    if (currentVideo && videoRef.current) {
-      videoRef.current.src = currentVideo;
-      const playVideo = async () => {
-        try {
-          await videoRef.current.play();
-        } catch (error) {
-          // Autoplay policy
-        }
-      };
-      playVideo();
-    }
-  }, [currentVideo]);
 
   // Initial welcome message and avatar
   useEffect(() => {
@@ -57,6 +45,7 @@ export default function AlienChatDesktop() {
           
           if (res.ok) {
             const data = await res.json();
+            // Assuming setCurrentVideo is used by AvatarPlayer or passed to it
             setCurrentVideo(data.videoUrl);
             setMessages([{ id: Date.now(), text: data.aiReply, sender: 'ai', timestamp: new Date() }]);
           } else {
@@ -104,6 +93,7 @@ export default function AlienChatDesktop() {
           
           if (res.ok) {
             const data = await res.json();
+            // Assuming setCurrentVideo is used by AvatarPlayer or passed to it
             setCurrentVideo(data.videoUrl);
             const aiMessage = {
               id: Date.now() + 1,
@@ -157,34 +147,15 @@ export default function AlienChatDesktop() {
 
   return (
     <div className="min-h-screen bg-alien-black flex items-center justify-center font-orbitron px-4 py-4">
-      <div className="w-full max-w-5xl bg-alien-black rounded-2xl shadow-neon flex flex-col lg:flex-row border-2 border-alien-green relative overflow-hidden" style={{ boxShadow: '0 0 32px #00ff41' }}>
+      <div className="w-full max-w-5xl bg-glass-dark border border-glass-border rounded-2xl shadow-neon flex flex-col lg:flex-row relative overflow-hidden">
         {/* Avatar Panel (left on desktop) */}
-        <div className="w-full lg:w-1/3 flex flex-col items-center justify-center p-6 border-b-2 lg:border-b-0 lg:border-r-2 border-alien-green relative" style={{ minHeight: 300 }}>
-          <div className="relative w-48 h-64 flex items-center justify-center">
-            {/* Fallback static avatar when no video */}
-            {!currentVideo && (
-              <div className="w-40 h-52 flex items-center justify-center rounded-lg border-2 border-alien-green shadow-neon bg-gradient-to-br from-alien-green to-alien-cyan">
-                <span className="text-white text-7xl flex items-center justify-center w-full h-full">👤</span>
-              </div>
-            )}
-            <video
-              ref={videoRef}
-              className="w-40 h-52 max-w-xs max-h-80 rounded-lg object-cover border-2 border-alien-green shadow-neon cursor-pointer absolute top-0 left-0"
-              style={{ display: currentVideo ? 'block' : 'none' }}
-              controls={false}
-              autoPlay
-              onClick={() => {
-                if (videoRef.current && videoRef.current.paused) {
-                  videoRef.current.play().catch(err => {});
-                }
-              }}
-              onError={(e) => {}}
+        <div className="w-full lg:w-1/3 flex flex-col items-center justify-center p-6 border-b lg:border-b-0 lg:border-r border-alien-green relative">
+          {/* Integrate AvatarPlayer component */}
+          <div className="w-full h-auto max-w-xs mx-auto aspect-w-3 aspect-h-4 rounded-lg border-2 border-alien-green shadow-neon relative">
+            <AvatarPlayer
+              videoUrl={currentVideo}
+              isGenerating={isGenerating}
             />
-            {isGenerating && (
-              <div className="absolute inset-0 flex items-center justify-center bg-alien-black bg-opacity-75 rounded-lg">
-                <div className="text-alien-green text-sm font-orbitron animate-pulse">Generating Avatar...</div>
-              </div>
-            )}
             <div className="absolute inset-0 pointer-events-none rounded-lg border-2 border-alien-green" style={{ boxShadow: '0 0 24px #00ff41', borderColor: '#00ff41' }} />
           </div>
           <div className="mt-4 text-center">
@@ -193,7 +164,7 @@ export default function AlienChatDesktop() {
           </div>
         </div>
         {/* Chat Panel (right on desktop) */}
-        <div className="flex-1 flex flex-col justify-between p-6 min-w-0">
+        <div className="flex-1 flex flex-col justify-between p-6 min-w-0 border-l border-alien-green/50">
           <div className="flex-1 flex flex-col gap-4 overflow-y-auto mb-4" style={{ minHeight: 300 }}>
             {messages.length === 0 ? (
               <div className="text-center text-alien-cyan opacity-60 mt-8">
@@ -203,9 +174,9 @@ export default function AlienChatDesktop() {
             ) : (
               messages.map((message) => (
                 <div
-                  key={message.id}
-                  className={`px-4 py-3 rounded-2xl max-w-[80%] border border-alien-green text-alien-green shadow-neon ${message.sender === 'user' ? 'self-end bg-alien-dark' : 'self-start bg-glass-dark'}`}
-                  style={{ boxShadow: '0 0 8px #00ff41' }}
+                  key={message.id} // Ensure unique key
+                  className={`px-4 py-3 rounded-2xl max-w-[80%] text-alien-green shadow-neon ${message.sender === 'user' ? 'self-end bg-alien-dark border border-alien-cyan/50' : 'self-start bg-glass-dark border border-alien-green/50'}`}
+                  style={{ boxShadow: message.sender === 'user' ? '0 0 8px #00ffff' : '0 0 8px #00ff41' }}
                 >
                   <div className="text-sm opacity-80 mb-1">{message.sender === 'user' ? 'You' : avatarConfig.name}</div>
                   <div>{message.text}</div>
@@ -228,7 +199,7 @@ export default function AlienChatDesktop() {
             />
             <button
               className="px-6 py-3 bg-gradient-to-r from-alien-green to-alien-cyan text-white font-semibold rounded-lg hover:from-alien-cyan hover:to-alien-green transition-all duration-200 shadow-lg hover:shadow-xl"
-              onClick={handleSendMessage}
+              onClick={handleSendMessage} // Keep the original onClick
               disabled={isTyping || isGenerating || !inputText.trim()}
             >
               Send

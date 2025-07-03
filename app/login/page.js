@@ -35,6 +35,8 @@ export default function Login() {
   const [devUsername, setDevUsername] = useState('');
   const [devPassword, setDevPassword] = useState('');
   const [devError, setDevError] = useState('');
+  const [loadingProviders, setLoadingProviders] = useState(true);
+  const [providerError, setProviderError] = useState(null);
 
   // Auto-redirect in dev mode
   // useEffect(() => {
@@ -50,11 +52,15 @@ export default function Login() {
   }, [status, router]);
 
   useEffect(() => {
+    setLoadingProviders(true);
+    setProviderError(null);
     getProviders()
       .then((prov) => {
         setProviders(prov);
+        setLoadingProviders(false);
       })
       .catch((err) => {
+        setProviderError("Failed to load login options. Please try again later.");
         console.error('Provider fetch error:', err);
       });
   }, []);
@@ -127,8 +133,14 @@ export default function Login() {
         )}
         {/* Login Buttons */}
         <div className="mt-8 space-y-4">
-          {providers && Object.values(providers).map((provider) => (
-            provider.id !== 'credentials' && (
+          {loadingProviders && (
+            <div className="text-center text-alien-green">Loading login options...</div>
+          )}
+          {providerError && (
+            <div className="text-center text-red-500">{providerError}</div>
+          )}
+          {!loadingProviders && !providerError && providers && Object.values(providers).map((provider) => (
+            provider.id !== 'credentials' && ( // Don't render the credentials provider button here
               <button
                 key={provider.id}
                 className={`w-full px-6 py-3 ${provider.id === 'github' ? 'bg-alien-green border-alien-green' : provider.id === 'google' ? 'bg-white border-gray-300 text-alien-black' : 'bg-alien-cyan border-alien-cyan'} text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-green hover:text-alien-black transition-all duration-200 flex items-center justify-center text-lg tracking-wide border-2 focus:outline-none focus:ring-2 focus:ring-alien-green`}
@@ -140,7 +152,7 @@ export default function Login() {
             )
           ))}
           {/* Fallback HTML buttons if providers are missing */}
-          {!providers && (
+          {!loadingProviders && !providerError && !providers && (
             <>
               <button
                 className="w-full px-6 py-3 bg-alien-green border-alien-green text-alien-black font-bold rounded-lg shadow-neon hover:bg-alien-cyan hover:text-alien-black transition-all duration-200 flex items-center justify-center text-lg tracking-wide border-2 focus:outline-none focus:ring-2 focus:ring-alien-green"

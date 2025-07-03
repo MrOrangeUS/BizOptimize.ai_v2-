@@ -2,7 +2,6 @@
 @import "tailwindcss";
 
 /* Force Vercel CSS rebuild: 2024-12-19 */
-
 /* Base Alien Tech Theme */
 @layer base {
   html {
@@ -10,16 +9,22 @@
   }
   
   body {
-    @apply bg-alien-black text-alien-green font-orbitron;
-    background-image: 
+    @apply bg-alien-black text-alien-green;
+ background-image: 
       radial-gradient(circle at 20% 80%, rgba(0, 255, 65, 0.03) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
       url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300ff41' fill-opacity='0.02'%3E%3Cpath d='M30 0l30 17.32v34.64L30 69.28 0 51.96V17.32L30 0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     background-attachment: fixed;
     position: relative;
     overflow-x: hidden;
+    font-family: 'Orbitron', sans-serif; /* Set Orbitron as default */
   }
 
+  /* Apply Audiowide to headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Audiowide', cursive;
+  }
+ 
   /* Scan-line overlay */
   body::before {
     content: '';
@@ -38,7 +43,7 @@
     pointer-events: none;
     z-index: 1;
   }
-
+ 
   /* Noise overlay */
   body::after {
     content: '';
@@ -51,7 +56,7 @@
     pointer-events: none;
     z-index: 2;
   }
-
+ 
   /* Custom cursor */
   * {
     cursor: none !important;
@@ -77,7 +82,7 @@
     pointer-events: none;
     z-index: 9998;
     opacity: 0.6;
-  }
+ }
 }
 
 /* Component Classes */
@@ -87,7 +92,7 @@
     @apply bg-glass-dark backdrop-blur-md border border-glass-border rounded-2xl;
     position: relative;
     overflow: hidden;
-  }
+ }
 
   .alien-glass::before {
     content: '';
@@ -99,7 +104,7 @@
     background: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, transparent 50%);
     pointer-events: none;
   }
-
+ 
   /* Cutout corners */
   .alien-glass::after {
     content: '';
@@ -111,7 +116,7 @@
     background: linear-gradient(45deg, transparent 50%, #0a0a0a 50%);
     border-radius: 0 0 0 8px;
   }
-
+ 
   /* Alien Button */
   .alien-btn {
     @apply bg-alien-dark border border-alien-green text-alien-green px-6 py-3 rounded-lg font-orbitron font-bold tracking-wider transition-all duration-300 relative overflow-hidden;
@@ -141,7 +146,7 @@
     transition: left 0.5s;
   }
 
-  .alien-btn:hover::before {
+ .alien-btn:hover::before {
     left: 100%;
   }
 
@@ -151,7 +156,7 @@
     box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.1);
   }
 
-  .alien-input:focus {
+ .alien-input:focus {
     box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.2), 0 0 15px rgba(0, 255, 65, 0.3);
   }
 
@@ -171,9 +176,9 @@
   .alien-card {
     @apply alien-glass p-6 relative;
     animation: border-glow 3s ease-in-out infinite;
-  }
+ }
 
-  .alien-card:hover {
+ .alien-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
   }
@@ -242,7 +247,7 @@
   /* Utility Classes */
   .text-glow {
     text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-  }
+ }
 
   .border-glow {
     box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
@@ -273,7 +278,7 @@
   background: #00ff41;
   border-radius: 4px;
 }
-
+ 
 ::-webkit-scrollbar-thumb:hover {
   background: #00cc33;
 }
@@ -289,7 +294,7 @@
   outline: 2px solid #00ff41;
   outline-offset: 2px;
 }
-
+ 
 /* Mobile cursor fix */
 @media (hover: none) {
   * {
